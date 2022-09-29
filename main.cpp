@@ -1,9 +1,12 @@
 #include <iostream>
 #include <clocale>
 #include <cstdio>
+#include <ctime>
+#include <fstream>
 
 using namespace std;
 
+// предельные параметры запуска: 192000 строк, 1000 столбцов, 1000 длина вектора
 int main() {
     setlocale(LC_ALL, "RUSSIAN");
     int n, m, v;   // размерности матрицы и длина вектора
@@ -22,33 +25,27 @@ int main() {
 
     cout << "                    , где Bij - [i][j]-ый элемент матрицы B размерности m x n," << endl;
     cout << "                      а Ai - i-ый элемент вектора A длины v." << endl;
-    cout << "                      Учтите, что для умножения матрицы на вектор должно выполнятся равенство: m=v" << endl;
+    cout << "                      Учтите, что для умножения матрицы на вектор должно выполнятся равенство: m=v (кол-во столбцов матрицы = длине вектора)" << endl;
     cout << "____________________________________________________________" << endl << endl;
 
-    cout << " Затем введите количество строк матрицы: ";
+    cout << " Затем введите количество строк матрицы: " << endl;
     cin >> n;
-    cout << endl;
-    cout << " Введите количество столбцов матрицы: ";
+    cout << " Введите количество столбцов матрицы: " << endl;
     cin >> m;
-    cout << endl;
-    cout << " Введите длину вектора: ";
+    cout << " Введите длину вектора: " << endl;
     cin >> v;
-    cout << endl;
 
     if(m != v) {
         cout << " Ошибка: длина вектора должна совпадать с кол-вом столбцов!" << endl;
         return -1;
     }
 
-
     // Выделение памяти под матрицу и вектор
     int **a = new int *[n];
     for (int i = 0; i < n; i++) {
         a[i] = new int[m];
     }
-
     int *vect = new int[v];
-
 
     // Считывание вектора из файла
     cout << " Считывание вектора из файла..." << endl;
@@ -57,12 +54,11 @@ int main() {
     }
 
     // Вывод вектора на экран
-    cout << " Ваш вектор: " << endl;
+    /*cout << " Ваш вектор: " << endl;
     for (int i = 0; i < v; i++) {
         cout << "(" << vect[i] << ")" << endl;
     }
-    cout << endl << endl;
-
+    cout << endl << endl;*/
 
     // Считывание матрицы из файла
     for (int i = 0; i < n; i++) {
@@ -72,9 +68,8 @@ int main() {
         }
     }
 
-
     // Вывод матрицы на экран
-    cout << " Считанная матрица:" << endl;
+    /*cout << " Считанная матрица:" << endl;
     for (int i = 0; i < n; i++) {
         cout << "(";
         for (int j = 0; j < m; j++) {
@@ -85,23 +80,30 @@ int main() {
         }
         cout << ")" << endl;
     }
-    cout << endl;
-
+    cout << endl;*/
 
     // Перемножение вектора на матрицу
     int *result = new int[n];
+    clock_t start_time =  clock(); // начальное время
     for (int i = 0; i < n; i++) {
         result[i] = 0;
         for (int j = 0; j < m; j++) {
             result[i] += vect[j] * a[i][j];
         }
     }
+    double calculation_time = (double) (clock() - start_time)/CLOCKS_PER_SEC; // время перемножения
+    cout << "Время вычисления произведения: " << calculation_time << endl;
+    std::ofstream log_out;
+    log_out.open("log.txt", std::ios::app);
+    log_out << "m: " << m << ", n: " << n << ", v: " << v << ", elapsed time: " << calculation_time << endl;
+    log_out.close();
+    cout << "Файл log.txt дополнен информацией о запуске" << endl;
 
-    cout << " Ответ: " << endl;
+    // запись произведения в выходной файл
     for (int i = 0; i < n; i++) {
-        cout << "(" << result[i] << ")" << endl;
         fprintf(out,"%d ", result[i]);
     }
+    cout << "Результат умножения записан в файл out.txt " << endl;
 
     // Закрыть фд
     fclose(in);
@@ -111,7 +113,6 @@ int main() {
     for (int i = 0; i < n; i++)
         delete[] a[i];
     delete[] a;
-
     delete[] vect;
     delete[] result;
 
